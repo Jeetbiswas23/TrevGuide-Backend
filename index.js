@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import authRoutes from './routes/auth.js';
+import blogRoutes from './routes/blogs.js';
+import photoRoutes from './routes/photos.js';
 
 dotenv.config();
 const app = express();
@@ -18,7 +20,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/trevguide
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Import routes here
+// Create uploads directory for photos
+app.use('/uploads', express.static('uploads'));
+
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/photos', photoRoutes);
