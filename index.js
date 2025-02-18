@@ -21,11 +21,10 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/blogs', blogRoutes);  // Enable only blog route for testing
-// Comment these out until they're created
-// app.use('/api/photos', photoRoutes);
-// app.use('/api/polls', pollRoutes);
-// app.use('/api/countries', countryRoutes);
+app.use('/api/blogs', blogRoutes);
+app.use('/api/photos', photoRoutes);
+app.use('/api/polls', pollRoutes);
+app.use('/api/countries', countryRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
