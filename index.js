@@ -21,18 +21,36 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/blogs', blogRoutes);
-app.use('/api/photos', photoRoutes);
-app.use('/api/polls', pollRoutes);
-app.use('/api/countries', countryRoutes);
+app.use('/api/blogs', blogRoutes);  // Enable only blog route for testing
+// Comment these out until they're created
+// app.use('/api/photos', photoRoutes);
+// app.use('/api/polls', pollRoutes);
+// app.use('/api/countries', countryRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
   res.json({ message: 'TrevGuide Backend API is running' });
 });
 
+// Error handling for uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+// More detailed error handling
+app.use((err, req, res, next) => {
+  console.error('Error details:', err);
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+}).on('error', (err) => {
+  console.error('Server failed to start:', err);
 });
