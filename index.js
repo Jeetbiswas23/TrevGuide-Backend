@@ -1,13 +1,12 @@
-// index.js
-const express = require('express');
-const connectDB = require('./config/db');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const authRoutes = require('./routes/auth');
-const blogRoutes = require('./routes/blog');
-const photoRoutes = require('./routes/photo');
-const pollRoutes = require('./routes/poll');
-const countryRoutes = require('./routes/country');
+import express from 'express';
+import connectDB from './config/db.js';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authRoutes from './routes/auth';
+import blogRoutes from './routes/blog';
+import photoRoutes from './routes/photo';
+import pollRoutes from './routes/poll';
+import countryRoutes from './routes/country';
 
 dotenv.config();
 
