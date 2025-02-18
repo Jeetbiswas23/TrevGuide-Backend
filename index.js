@@ -2,11 +2,11 @@ import express from 'express';
 import connectDB from './config/db.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import authRoutes from './routes/auth';
-import blogRoutes from './routes/blog';
-import photoRoutes from './routes/photo';
-import pollRoutes from './routes/poll';
-import countryRoutes from './routes/country';
+import authRoutes from './routes/auth.js';
+import blogRoutes from './routes/blog.js';
+import photoRoutes from './routes/photo.js';
+import pollRoutes from './routes/poll.js';
+import countryRoutes from './routes/country.js';
 
 dotenv.config();
 
