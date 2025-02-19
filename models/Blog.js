@@ -36,6 +36,14 @@ blogSchema.virtual('likesCount').get(function() {
   return this.likes.length;
 });
 
+blogSchema.set('toJSON', {
+  virtuals: true,
+  transform: function(doc, ret) {
+    ret.likesCount = ret.likes.length;
+    return ret;
+  }
+});
+
 const Blog = mongoose.model('Blog', blogSchema);
 
 export default Blog;

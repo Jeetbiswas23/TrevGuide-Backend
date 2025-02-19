@@ -16,6 +16,7 @@ router.get('/', async (req, res) => {
 
     const blogs = await Blog.find(query)
       .populate('author', 'username')
+      .populate('likes', 'username')  // Add this line
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ createdAt: -1 });
@@ -49,7 +50,9 @@ router.post('/', auth, async (req, res) => {
 // Get single blog
 router.get('/:id', async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id).populate('author', 'username');
+    const blog = await Blog.findById(req.params.id)
+      .populate('author', 'username')
+      .populate('likes', 'username');  // Add this line
     if (!blog) return res.status(404).json({ message: 'Blog not found' });
     res.json(blog);
   } catch (error) {
@@ -78,6 +81,28 @@ router.delete('/:id', auth, async (req, res) => {
     const blog = await Blog.findOneAndDelete({ _id: req.params.id, author: req.userId });
     if (!blog) return res.status(404).json({ message: 'Blog not found' });
     res.json({ message: 'Blog deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add like/unlike route
+router.post('/:id/like', auth, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    const likeIndex = blog.likes.indexOf(req.userId);
+    if (likeIndex === -1) {
+      blog.likes.push(req.userId);
+    } else {
+      blog.likes.splice(likeIndex, 1);
+    }
+
+    await blog.save();
+    res.json({ likes: blog.likes.length });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
