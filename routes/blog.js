@@ -2,6 +2,7 @@ import express from 'express';
 import Blog from '../models/Blog.js';
 import Comment from '../models/Comment.js';
 import auth from '../middleware/auth.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -63,14 +64,37 @@ router.get('/:id', async (req, res) => {
 // Update blog
 router.put('/:id', auth, async (req, res) => {
   try {
-    const blog = await Blog.findOneAndUpdate(
+    // Validate object ID
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid blog ID' });
+    }
+
+    console.log('Updating blog:', req.params.id, 'by user:', req.userId);
+    console.log('Update data:', req.body);
+
+    // Update the blog directly
+    const updatedBlog = await Blog.findOneAndUpdate(
       { _id: req.params.id, author: req.userId },
-      req.body,
-      { new: true }
-    );
-    if (!blog) return res.status(404).json({ message: 'Blog not found' });
-    res.json(blog);
+      { $set: req.body },
+      { 
+        new: true, 
+        runValidators: true 
+      }
+    ).populate('author', 'username')
+     .populate('likes', 'username');
+
+    if (!updatedBlog) {
+      console.log('Blog not found or user not authorized');
+      return res.status(404).json({ 
+        message: 'Blog not found or user not authorized to update this blog'
+      });
+    }
+
+    console.log('Blog updated successfully:', updatedBlog);
+    res.json(updatedBlog);
+
   } catch (error) {
+    console.error('Update blog error:', error);
     res.status(400).json({ error: error.message });
   }
 });
@@ -127,6 +151,7 @@ router.post('/:id/comments', auth, async (req, res) => {
 router.get('/:id/comments', async (req, res) => {
   try {
     const comments = await Comment.find({ blog: req.params.id })
+
       .populate('author', 'username')
       .sort({ createdAt: -1 });
     res.json(comments);
