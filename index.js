@@ -17,30 +17,58 @@ const app = express();
 // Connect to the database
 connectDB();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Security middleware
-app.use(helmet());
-
-// Rate limiting
+// Rate limiting configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100 // limit each IP to 100 requests per windowMs
 });
+
+// Basic middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// CORS configuration
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Security middleware
+app.use(helmet());
 app.use(limiter);
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/blogs', blogRoutes);
-app.use('/api/photos', photoRoutes);
-app.use('/api/polls', pollRoutes);
-app.use('/api/countries', countryRoutes);
+// Debug middleware (move before routes)
+app.use((req, res, next) => {
+  console.log(`[DEBUG] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Routes - change path to match frontend
+app.use('/api/auth', authRoutes); // Remove v1 prefix to match frontend
+
+// Add route debug endpoint
+app.get('/api/debug', (req, res) => {
+  res.json({ 
+    message: 'API is working',
+    routes: {
+      auth: '/api/auth',
+      signup: '/api/auth/signup',
+      login: '/api/auth/login'
+    }
+  });
+});
 
 // Health check route
 app.get('/', (req, res) => {
   res.json({ message: 'TrevGuide Backend API is running' });
+});
+
+// Add 404 handler
+app.use((req, res) => {
+  console.log('404 - Route not found:', req.originalUrl);
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
 });
 
 // Error handling for uncaught exceptions

@@ -1,38 +1,33 @@
 import express from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import { signup, login } from '../controllers/auth.js';
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, email, password: hashedPassword });
-    await user.save();
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Debug middleware for auth routes
+router.use((req, res, next) => {
+  console.log('Auth route accessed:', {
+    method: req.method,
+    path: req.path,
+    body: req.body
+  });
+  next();
 });
 
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'fallbacksecret');
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+router.post('/signup', (req, res, next) => {
+  console.log('Signup route hit with body:', req.body);
+  signup(req, res, next);
+});
+
+router.post('/login', login);
+
+// Test endpoint to verify route configuration
+router.get('/', (req, res) => {
+  res.json({ status: 'Auth routes working' });
+});
+
+// Debug endpoint
+router.get('/test', (req, res) => {
+  res.json({ message: 'Auth routes working' });
 });
 
 export default router;
