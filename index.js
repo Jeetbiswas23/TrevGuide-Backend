@@ -7,6 +7,8 @@ import blogRoutes from './routes/blog.js';
 import photoRoutes from './routes/photo.js';
 import pollRoutes from './routes/poll.js';
 import countryRoutes from './routes/country.js';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 dotenv.config();
 
@@ -18,6 +20,16 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Security middleware
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
