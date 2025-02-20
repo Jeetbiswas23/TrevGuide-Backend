@@ -13,9 +13,19 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/signup', (req, res, next) => {
-  console.log('Signup route hit with body:', req.body);
-  signup(req, res, next);
+// Single signup route handler for both /register and /signup
+router.post(['/register', '/signup'], async (req, res, next) => {
+  try {
+    console.log('Signup attempt with body:', req.body);
+    await signup(req, res, next);
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Signup failed', 
+      error: error.message 
+    });
+  }
 });
 
 router.post('/login', login);

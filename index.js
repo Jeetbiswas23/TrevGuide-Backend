@@ -45,8 +45,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add redirect for root-level signup endpoint
+app.post('/signup', (req, res) => {
+  res.redirect(307, '/api/auth/signup');
+});
+
 // Routes - change path to match frontend
-app.use('/api/auth', authRoutes); // Remove v1 prefix to match frontend
+app.use('/api/auth', authRoutes);
 
 // Add route debug endpoint
 app.get('/api/debug', (req, res) => {
@@ -54,6 +59,7 @@ app.get('/api/debug', (req, res) => {
     message: 'API is working',
     routes: {
       auth: '/api/auth',
+      register: '/api/auth/register', // Added register endpoint
       signup: '/api/auth/signup',
       login: '/api/auth/login'
     }
