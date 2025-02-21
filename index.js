@@ -1,7 +1,10 @@
+import dotenv from 'dotenv';
+// Load env vars before other imports
+dotenv.config();
+
 import express from 'express';
 import connectDB from './config/db.js';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import blogRoutes from './routes/blog.js';
 import photoRoutes from './routes/photo.js';
@@ -10,9 +13,16 @@ import countryRoutes from './routes/country.js';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
-dotenv.config();
-
 const app = express();
+
+// Debug middleware to log env vars (remove in production)
+if (process.env.NODE_ENV === 'development') {
+  console.log('Environment variables loaded:', {
+    MONGODB_URI: process.env.MONGODB_URI ? 'Set' : 'Not set',
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT
+  });
+}
 
 // Connect to the database
 connectDB();
